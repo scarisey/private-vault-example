@@ -1,0 +1,9 @@
+keys:
+  - &ci age1vlcfusx5f235x84rx5gftfshc7twhz3ydj3mmwev4a44m0j2gdvsd9vj3n
+  - &sylvain age1mxs5uu57zstrqul27z0t2falaglghlkmpa5x5cwse329yvgvjfjs3z6kuh
+creation_rules:
+  - path_regex: secrets.yaml
+    key_groups:
+    - age:
+      - *ci
+      - *sylvain

@@ -1,0 +1,44 @@
+name: Update SOPS Secrets
+
+on:
+  workflow_dispatch:
+    inputs:
+      age_public_key:
+        description: 'Public Age key to add'
+        required: true
+
+jobs:
+  update-sops:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          curl -LO https://github.com/getsops/sops/releases/download/v3.10.2/sops-v3.10.2.linux.amd64
+          mv sops-v3.10.2.linux.amd64 /usr/local/bin/sops
+          chmod +x /usr/local/bin/sops
+
+      - name: Add Age recipient
+        run: |
+          PUBKEY="${{ github.event.inputs.age_public_key }}"
+          yq eval ".creation_rules[0].key_groups[0].age += [ \"$PUBKEY\" ]" -i .sops.yaml
+          cat .sops.yaml
+
+      - name: Re-encrypt secrets
+        env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        run: |
+          sops updatekeys -y secrets.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "ci-bot"
+          git config user.email "ci@carisey.dev"
+          git add .sops.yaml secrets.yaml
+          git commit -m "Add Age recipient"
+          git push
