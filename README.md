@@ -57,6 +57,26 @@ inputs = {
 ```
 
 
+## Adding Age Keys via CI
+
+This repository includes a GitHub Action workflow that allows you to add new age public keys and automatically re-encrypt all secrets without having access to the original age private key locally.
+
+### Prerequisites
+
+Store your CI age private key in GitHub Actions secrets as `SOPS_AGE_KEY`. This key must be one of the existing age recipients in `.sops.yaml`.
+
+### Usage
+
+To add a new age public key from the GitHub Actions UI:
+
+1. Navigate to the **Actions** tab in your repository
+2. Select the **Update SOPS Secrets** workflow
+3. Click **Run workflow**
+4. Enter the new age public key when prompted
+5. Click **Run workflow** to start the process
+
+The workflow will automatically add the new public key to `.sops.yaml`, re-encrypt `secrets.yaml` with the updated recipient list, and commit the changes back to the repository.
+
 ## GitHub Actions Integration
 
 ### HTTPS with Personal Access Token
